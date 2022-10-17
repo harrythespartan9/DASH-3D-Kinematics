@@ -1,6 +1,6 @@
 % This function returns an scalar error value based on the required
 % amplification factor for each leg DOF
-function f = DASH_err_gamma(x, g_a, g_b)
+function f = DASH_err_gamma_hessian(x, g_a, g_b)
 
 % % Each x element is shown below:
 % % x(1)  -- l_1                               % link lengths of lift
