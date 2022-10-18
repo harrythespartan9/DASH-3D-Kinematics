@@ -16,6 +16,7 @@ function [c, ceq] = DASH_constraint(x, ~, ~) % , gradc, gradceq
 % % x(11) -- theta_4 + theta_5
 % % x(12) -- theta_4 + theta_5 + theta_6
 % % x(13) -- L                                 % Length of the leg
+% % x(14) -- l                                 % Length of coupled chain
 
 % We have no inequality constraints, so set that as empty.
 c = [];
