@@ -19,7 +19,12 @@
 % % x(14) -- l                                 % Length of coupled chain
 
 % Function call
-function out = DASH_animate(x, v)
+function out = DASH_animate(x, v, iF)
+
+% Check if the isolate input flag is set
+if nargin < 3
+    iF = nan;
+end
 
 % Unpack the kinematic state variables
 l1 = x(1); 
@@ -41,10 +46,20 @@ t = linspace(0,1); out.t = t;
 
 % Conserved motor inputs to the system, scaled based on the length of the
 % coupled kinematic chain, x(14) or kinL. The motor input is based on the
-% initial condition given the optimization that has a kinL of 1. For more
-% information about this normalization, check 
-b_hat = deg2rad(15)/kinL;
-a_hat = b_hat;
+% initial condition given the optimization that has a kinL of 1. If the
+% isolate input flag isoF is set to 1 (or 2) we only set the lift input (or
+% swing input).
+if isnan(iF) % default circular motor input case
+    b_hat = deg2rad(15)/kinL;
+    a_hat = b_hat;
+elseif iF == 1 % just lift input case
+    b_hat = 0;
+    a_hat = deg2rad(15)/kinL;
+else % swing input case
+    b_hat = deg2rad(15)/kinL;
+    a_hat = 0;
+end
+
 
 % Load our analytical kinematics results -- manually solved kinematics
 load('DASH_analytical.mat');
