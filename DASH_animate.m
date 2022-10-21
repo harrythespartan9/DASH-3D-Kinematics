@@ -19,10 +19,10 @@
 % % x(14) -- l                                 % Length of coupled chain
 
 % Function call
-function out = DASH_animate(x, v, iF)
+function out = DASH_animate(x, v, p, iF)
 
 % Check if the isolate input flag is set
-if nargin < 3
+if nargin < 4
     iF = nan;
 end
 

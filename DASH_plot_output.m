@@ -1,13 +1,29 @@
 % This script returns figures plotting the input, reference, and obtained 
 % output trajectories for the given DASH specs.
 
-function DASH_plot_output(i, x, v, g_b, g_a, maxtrajsize)
+function DASH_plot_output(i, x, v, g_b, g_a, maxtrajsize, p)
+
+ctext = [];
+switch p.io
+    case 1
+        ctext = [ctext 'Simple_'];
+    case 2
+        ctext = [ctext 'Complex_'];
+end
+switch p.c
+    case 0
+        ctext = [ctext 'Mount_Swing_Lift'];
+    case 1
+        ctext = [ctext 'Mount_Lift'];
+    case 2
+        ctext = [ctext 'Mount_Swing'];
+end
 
 circ1 = (1/255)*[215, 25, 28];
 circ3 = (1/255)*[44, 123, 182];
 % circ2 = (1/255)*[96, 0, 220];
 % circ4 = (1/255)*[35,139,69];
-out = DASH_animate(x', v);
+out = DASH_animate(x', v, p);
 h_i_t = out.h_i_t;
 h_o_t = out.h_o_t;
 t = out.t;
@@ -63,7 +79,7 @@ plot3(xo_r,zo_r,yo_r,'--','Color',circ3,'LineWidth',1.0);
 xlabel('x');
 ylabel('y');
 zlabel('z');
-sgtitle(['case ' num2str(i)]);
+sgtitle(['case ' num2str(i) ctext]);
 % isoF = 1;
 % out_lift = DASH_animate(x', v, isoF);
 % h_i_t = out_lift.h_i_t;
