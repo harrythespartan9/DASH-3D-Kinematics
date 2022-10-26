@@ -19,12 +19,7 @@
 % % x(14) -- l                                 % Length of coupled chain
 
 % Function call
-function out = DASH_animate(x, v, p, iF)
-
-% Check if the isolate input flag is set
-if nargin < 4
-    iF = nan;
-end
+function out = DASH_animate(x, v, p)
 
 % Unpack the kinematic state variables
 l1 = x(1); 
@@ -44,21 +39,25 @@ legL = x(13); kinL = x(14);
 % ime vector for the simulation
 t = linspace(0,1); out.t = t;
 
-% Conserved motor inputs to the system, scaled based on the length of the
-% coupled kinematic chain, x(14) or kinL. The motor input is based on the
-% initial condition given the optimization that has a kinL of 1. If the
-% isolate input flag isoF is set to 1 (or 2) we only set the lift input (or
-% swing input).
-if isnan(iF) % default circular motor input case
-    b_hat = deg2rad(15)/kinL;
-    a_hat = b_hat;
-elseif iF == 1 % just lift input case
-    b_hat = 0;
-    a_hat = deg2rad(15)/kinL;
-else % swing input case
-    b_hat = deg2rad(15)/kinL;
-    a_hat = 0;
-end
+% % % LEGACY CODE, NOT SUPPORTED %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % % Conserved motor inputs to the system, scaled based on the length of the
+% % % coupled kinematic chain, x(14) or kinL. The motor input is based on the
+% % % initial condition given the optimization that has a kinL of 1. If the
+% % % isolate input flag isoF is set to 1 (or 2) we only set the lift input (or
+% % % swing input).
+% % if isnan(iF) % default circular motor input case
+% %     b_hat = deg2rad(15)/kinL;
+% %     a_hat = b_hat;
+% % elseif iF == 1 % just lift input case
+% %     b_hat = 0;
+% %     a_hat = deg2rad(15)/kinL;
+% % else % swing input case
+% %     b_hat = deg2rad(15)/kinL;
+% %     a_hat = 0;
+% % end
+% The motor inputs to the system
+b_hat = deg2rad(15)/kinL;
+a_hat = b_hat;
 
 
 % Load our analytical kinematics results -- manually solved kinematics
@@ -70,9 +69,13 @@ syms theta_1 theta_2 theta_3 theta_4 theta_5 theta_6 real
 syms tau real
 syms alpha_hat beta_hat real positive
 
-% Get each frame description to plot the kinematics
-% h_e_t = [eye(3,3), zeros(3,1);
-%         zeros(1,3), 1];
+% Get each frame description to plot the kinematics ~~~~~~~~~~~~~~~~~~~~~~~
+% Setup the error objective choice %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% p struct incorporates this; p.io == 0 --> simpler formulation
+%                             p.io == 1 --> complex formulation
+%                                   p.c == 0 --> doubly coupled
+%                                   p.c == 1 --> S lever, L coupled
+%                                   p.c == 2 --> S coupled, L lever
 h_e__i_f = matlabFunction(h_e__i, 'Vars', [tau, alpha_hat, beta_hat, l]);
 h_i__1_t = double(subs(h_i__1, theta_1, theta1));
 h_i__2_t = double(subs(h_i__1*h_1__2, [theta_1, l_1, theta_2], [theta1, l1, theta2]));
@@ -84,8 +87,17 @@ h_i__6_t = double(subs(h_i__4*h_4__5*h_5__6, [theta_4, l_4, theta_5, l_5, theta_
 h_i__0bs_t = double(subs(h_i__4*h_4__5*h_5__6*h_6__0b_s, [theta_4, l_4, theta_5, l_5, theta_6, l_6], [theta4, l4, theta5, l5, theta6, l6]));
 h_i__23_t = double(subs(h_i__23, [theta_1, l_1, theta_2, l_2], [theta1, l1, theta2, l2]));
 h_i__56_t = double(subs(h_i__56, [theta_4, l_4, theta_5, l_5], [theta4, l4, theta5, l5]));
-h_i__oprime_t = double(subs(h_i__oprime, [theta_1, l_1, theta_2, l_2, theta_4, l_4, theta_5, l_5], [theta1, l1, theta2, l2, theta4, l4, theta5, l5]));
-h_i__o_t = double(subs(h_i__o, [theta_1, l_1, theta_2, l_2, theta_4, l_4, theta_5, l_5, L], [theta1, l1, theta2, l2, theta4, l4, theta5, l5, legL]));
+switch p.c % Get the right transforms based on the coupling condition.
+    case 0
+        h_i__oprime_t = double(subs(h_i__oprime, [theta_1, l_1, theta_2, l_2, theta_4, l_4, theta_5, l_5], [theta1, l1, theta2, l2, theta4, l4, theta5, l5]));
+        h_i__o_t = double(subs(h_i__o, [theta_1, l_1, theta_2, l_2, theta_4, l_4, theta_5, l_5, L], [theta1, l1, theta2, l2, theta4, l4, theta5, l5, legL]));
+    case 1
+        h_i__oprime_t = double(subs(h_i__oprimeL, [theta_1, l_1, theta_2, l_2, theta_4, l_4, theta_5, l_5], [theta1, l1, theta2, l2, theta4, l4, theta5, l5]));
+        h_i__o_t = double(subs(h_i__oL, [theta_1, l_1, theta_2, l_2, theta_4, l_4, theta_5, l_5, L], [theta1, l1, theta2, l2, theta4, l4, theta5, l5, legL]));
+    case 2
+        h_i__oprime_t = double(subs(h_i__oprimeS, [theta_1, l_1, theta_2, l_2, theta_4, l_4, theta_5, l_5], [theta1, l1, theta2, l2, theta4, l4, theta5, l5]));
+        h_i__o_t = double(subs(h_i__oS, [theta_1, l_1, theta_2, l_2, theta_4, l_4, theta_5, l_5, L], [theta1, l1, theta2, l2, theta4, l4, theta5, l5, legL]));
+end
 
 % LEGACY CODE, not supported anymore. %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % % % Compute the coupled length of the kinematic chain -- the average between

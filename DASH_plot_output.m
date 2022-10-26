@@ -6,9 +6,9 @@ function DASH_plot_output(i, x, v, g_b, g_a, maxtrajsize, p)
 ctext = [];
 switch p.io
     case 1
-        ctext = [ctext 'Simple_'];
+        ctext = [ctext 'Simple_Err_'];
     case 2
-        ctext = [ctext 'Complex_'];
+        ctext = [ctext 'Complex_Err_'];
 end
 switch p.c
     case 0
