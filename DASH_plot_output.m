@@ -6,17 +6,17 @@ function DASH_plot_output(i, x, v, g_b, g_a, maxtrajsize, p)
 ctext = [];
 switch p.io
     case 1
-        ctext = [ctext 'Simple_Err_'];
+        ctext = ' Simple Err ';
     case 2
-        ctext = [ctext 'Complex_Err_'];
+        ctext = ' Complex Err ';
 end
 switch p.c
     case 0
-        ctext = [ctext 'Mount_Swing_Lift'];
+        ctext = [ctext 'Mount Swing Lift'];
     case 1
-        ctext = [ctext 'Mount_Lift'];
+        ctext = [ctext 'Mount Lift'];
     case 2
-        ctext = [ctext 'Mount_Swing'];
+        ctext = [ctext 'Mount Swing'];
 end
 
 circ1 = (1/255)*[215, 25, 28];
